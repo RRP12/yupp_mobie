@@ -1,0 +1,18 @@
+{
+  "mcpServers": {
+    "figma": {
+      "command": "node",
+      "args": ["/opt/homebrew/lib/node_modules/figma-developer-mcp/dist/index.js"],
+      "env": {
+        "FIGMA_API_KEY": "figd_SEogBJcBXJKqR8978JJiV0MST6muNFD-6JeidCqS"
+      }
+    },
+    "figma-server": {
+      "command": "node",
+      "args": ["/opt/homebrew/lib/node_modules/figma-mcp-server/index.js"],
+      "env": {
+        "FIGMA_ACCESS_TOKEN": "figd_SEogBJcBXJKqR8978JJiV0MST6muNFD-6JeidCqS"
+      }
+    }
+  }
+}
