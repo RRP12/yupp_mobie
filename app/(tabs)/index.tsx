@@ -1,403 +1,84 @@
-// import { Ionicons } from "@expo/vector-icons"
-// import { BlurView } from "expo-blur"
-// import { LinearGradient } from "expo-linear-gradient"
-// import React, { useEffect, useRef, useState } from "react"
-// import {
-//   Animated,
-//   Dimensions,
-//   Image,
-//   Platform,
-//   SafeAreaView,
-//   ScrollView,
-//   StatusBar,
-//   StyleSheet,
-//   Text,
-//   TextInput,
-//   TouchableOpacity,
-//   View,
-// } from "react-native"
+import { QueryClient, QueryClientProvider, useQuery } from "@tanstack/react-query";
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
 
-// const { width, height } = Dimensions.get("window")
-// const CARD_WIDTH = (width - 48) / 2
+const queryClient = new QueryClient();
 
-// export default function FunkyShoppingApp() {
-//   const [activeCategory, setActiveCategory] = useState("🔥 Trending")
-//   const [activeTab, setActiveTab] = useState("Home")
-//   const [searchFocused, setSearchFocused] = useState(false)
+function Example() {
+  const { isPending, error, data } = useQuery({
+    queryKey: ["repoData"],
+    queryFn: () =>
+      fetch("https://api.github.com/repos/TanStack/query").then((res) =>
+        res.json()
+      ),
+  });
 
-//   const scaleAnim = useRef(new Animated.Value(1)).current
-//   const pulseAnim = useRef(new Animated.Value(1)).current
+  if (isPending) {
+    return (
+      <View style={styles.container}>
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
 
-//   useEffect(() => {
-//     // Pulse animation for trending items
-//     Animated.loop(
-//       Animated.sequence([
-//         Animated.timing(pulseAnim, {
-//           toValue: 1.05,
-//           duration: 1000,
-//           useNativeDriver: true,
-//         }),
-//         Animated.timing(pulseAnim, {
-//           toValue: 1,
-//           duration: 1000,
-//           useNativeDriver: true,
-//         }),
-//       ])
-//     ).start()
-//   }, [])
+  if (error) {
+    return (
+      <View style={styles.container}>
+        <Text>An error has occurred: {error.message}</Text>
+      </View>
+    );
+  }
 
-//   const categories = [
-//     { id: "trending", label: "🔥 Trending", gradient: ["#FF6B6B", "#FF8E53"] },
-//     { id: "men", label: "👨 Men", gradient: ["#4ECDC4", "#44A08D"] },
-//     { id: "women", label: "👩 Women", gradient: ["#A8E6CF", "#88D8C0"] },
-//     { id: "kids", label: "👶 Kids", gradient: ["#FFD93D", "#6BCF7F"] },
-//     {
-//       id: "accessories",
-//       label: "💎 Accessories",
-//       gradient: ["#667eea", "#764ba2"],
-//     },
-//   ]
+  return (
+    <View style={styles.container}>
+      <Text style={styles.title}>{data.name}</Text>
+      <Text style={styles.description}>{data.description}</Text>
+      <View style={styles.statsContainer}>
+        <Text style={styles.stats}>👀 {data.subscribers_count}</Text>
+        <Text style={styles.stats}>✨ {data.stargazers_count}</Text>
+        <Text style={styles.stats}>🍴 {data.forks_count}</Text>
+      </View>
+    </View>
+  );
+}
 
-//   const posts = [
-//     {
-//       id: 1,
-//       user: "@stylesmith",
-//       avatar:
-//         "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
-//       image:
-//         "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=300&h=400&fit=crop",
-//       likes: "2.3K",
-//       views: "12.5K",
-//       isLiked: false,
-//       isTrending: true,
-//       colors: ["#FF6B6B", "#4ECDC4", "#45B7D1"],
-//       tags: ["#streetwear", "#vintage"],
-//       price: "$89",
-//     },
-//     {
-//       id: 2,
-//       user: "@fashionista",
-//       avatar:
-//         "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face",
-//       image:
-//         "https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=300&h=400&fit=crop",
-//       likes: "1.8K",
-//       views: "8.2K",
-//       isLiked: true,
-//       isTrending: false,
-//       colors: ["#A8E6CF", "#7FCDCD", "#88D8C0"],
-//       tags: ["#boho", "#summer"],
-//       price: "$124",
-//     },
-//     {
-//       id: 3,
-//       user: "@trendsetter",
-//       avatar:
-//         "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
-//       image:
-//         "https://images.unsplash.com/photo-1445205170230-053b83016050?w=300&h=400&fit=crop",
-//       likes: "3.1K",
-//       views: "15.7K",
-//       isLiked: false,
-//       isTrending: true,
-//       colors: ["#FFD93D", "#6BCF7F", "#FF8E53"],
-//       tags: ["#casual", "#trendy"],
-//       price: "$67",
-//     },
-//     {
-//       id: 4,
-//       user: "@shoegame",
-//       avatar:
-//         "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
-//       image:
-//         "https://images.unsplash.com/photo-1441984904996-e0b6ba687e04?w=300&h=400&fit=crop",
-//       likes: "4.2K",
-//       views: "22.1K",
-//       isLiked: false,
-//       isTrending: true,
-//       colors: ["#667eea", "#764ba2", "#f093fb"],
-//       tags: ["#sneakers", "#limited"],
-//       price: "$299",
-//     },
-//   ]
+export default function Index() {
+  return (
+    <QueryClientProvider client={queryClient}>
+      <Example />
+    </QueryClientProvider>
+  );
+}
 
-//   const navItems = [
-//     {
-//       icon: "home-outline",
-//       activeIcon: "home",
-//       label: "Home",
-//       key: "Home",
-//       color: "#FF6B6B",
-//     },
-//     {
-//       icon: "grid-outline",
-//       activeIcon: "grid",
-//       label: "Shop",
-//       key: "Categories",
-//       color: "#4ECDC4",
-//     },
-//     {
-//       icon: "camera-outline",
-//       activeIcon: "camera",
-//       label: "Create",
-//       key: "Create",
-//       color: "#FFD93D",
-//     },
-//     {
-//       icon: "heart-outline",
-//       activeIcon: "heart",
-//       label: "Likes",
-//       key: "Likes",
-//       color: "#A8E6CF",
-//     },
-//     {
-//       icon: "person-outline",
-//       activeIcon: "person",
-//       label: "Profile",
-//       key: "Profile",
-//       color: "#667eea",
-//     },
-//   ]
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 16,
+    backgroundColor: "#fff",
+  },
+  title: {
+    fontSize: 22,
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  description: {
+    fontSize: 16,
+    textAlign: "center",
+    marginVertical: 12,
+    color: "#333",
+  },
+  statsContainer: {
+    marginTop: 16,
+    alignItems: "center",
+  },
+  stats: {
+    fontSize: 18,
+    marginVertical: 4,
+  },
+});
 
-//   const animatePress = () => {
-//     Animated.sequence([
-//       Animated.timing(scaleAnim, {
-//         toValue: 0.95,
-//         duration: 100,
-//         useNativeDriver: true,
-//       }),
-//       Animated.timing(scaleAnim, {
-//         toValue: 1,
-//         duration: 100,
-//         useNativeDriver: true,
-//       }),
-//     ]).start()
-//   }
-
-//   const renderHeader = () => (
-//     <LinearGradient
-//       colors={["#667eea", "#764ba2", "#f093fb"]}
-//       style={styles.header}
-//     >
-//       <SafeAreaView>
-//         <View style={styles.headerContent}>
-//           <View style={styles.headerTop}>
-//             <View style={styles.headerLeft}>
-//               <View style={styles.logoContainer}>
-//                 <Text style={styles.logo}>✨</Text>
-//                 <Text style={styles.brandName}>StyleVibe</Text>
-//               </View>
-//             </View>
-//             <View style={styles.headerRight}>
-//               <TouchableOpacity style={styles.headerButton}>
-//                 <View style={styles.notificationBadge}>
-//                   <Text style={styles.badgeText}>3</Text>
-//                 </View>
-//                 <Ionicons
-//                   name="notifications-outline"
-//                   size={22}
-//                   color="white"
-//                 />
-//               </TouchableOpacity>
-//               <TouchableOpacity style={styles.headerButton}>
-//                 <Ionicons
-//                   name="chatbubble-ellipses-outline"
-//                   size={22}
-//                   color="white"
-//                 />
-//               </TouchableOpacity>
-//             </View>
-//           </View>
-
-//           <View style={styles.searchContainer}>
-//             <BlurView intensity={20} style={styles.searchBlur}>
-//               <Ionicons
-//                 name="search"
-//                 size={18}
-//                 color="#667eea"
-//                 style={styles.searchIcon}
-//               />
-//               <TextInput
-//                 style={styles.searchInput}
-//                 placeholder="What's your vibe today? 🔍"
-//                 placeholderTextColor="#8B5CF6"
-//                 onFocus={() => setSearchFocused(true)}
-//                 onBlur={() => setSearchFocused(false)}
-//               />
-//               <TouchableOpacity style={styles.micButton}>
-//                 <Ionicons name="mic-outline" size={16} color="#667eea" />
-//               </TouchableOpacity>
-//             </BlurView>
-//           </View>
-//         </View>
-//       </SafeAreaView>
-//     </LinearGradient>
-//   )
-
-//   const renderCategories = () => (
-//     <View style={styles.categoriesContainer}>
-//       <ScrollView
-//         horizontal
-//         showsHorizontalScrollIndicator={false}
-//         style={styles.categoriesScroll}
-//       >
-//         {categories.map((category) => (
-//           <TouchableOpacity
-//             key={category.id}
-//             onPress={() => {
-//               setActiveCategory(category.label)
-//               animatePress()
-//             }}
-//           >
-//             <LinearGradient
-//               colors={
-//                 activeCategory === category.label
-//                   ? category.gradient
-//                   : ["#f8fafc", "#e2e8f0"]
-//               }
-//               style={[
-//                 styles.categoryButton,
-//                 activeCategory === category.label &&
-//                   styles.activeCategoryButton,
-//               ]}
-//             >
-//               <Text
-//                 style={[
-//                   styles.categoryText,
-//                   activeCategory === category.label &&
-//                     styles.activeCategoryText,
-//                 ]}
-//               >
-//                 {category.label}
-//               </Text>
-//             </LinearGradient>
-//           </TouchableOpacity>
-//         ))}
-//       </ScrollView>
-//     </View>
-//   )
-
-//   const renderPostCard = (post) => (
-//     <Animated.View
-//       key={post.id}
-//       style={[
-//         styles.cardContainer,
-//         post.isTrending && { transform: [{ scale: pulseAnim }] },
-//       ]}
-//     >
-//       <TouchableOpacity onPress={animatePress} activeOpacity={0.9}>
-//         <LinearGradient colors={post.colors} style={styles.card}>
-//           {/* Trending Badge */}
-//           {post.isTrending && (
-//             <View style={styles.trendingBadge}>
-//               <Text style={styles.trendingText}>🔥 HOT</Text>
-//             </View>
-//           )}
-
-//           {/* User Info */}
-//           <View style={styles.cardHeader}>
-//             <View style={styles.userInfo}>
-//               <Image source={{ uri: post.avatar }} style={styles.avatar} />
-//               <Text style={styles.username}>{post.user}</Text>
-//             </View>
-//             <TouchableOpacity style={styles.followButton}>
-//               <Text style={styles.followText}>+ Follow</Text>
-//             </TouchableOpacity>
-//           </View>
-
-//           {/* Play Button with Glow Effect */}
-//           <View style={styles.playButtonContainer}>
-//             <View style={styles.playButtonGlow}>
-//               <TouchableOpacity style={styles.playButton}>
-//                 <Ionicons name="play" size={28} color="white" />
-//               </TouchableOpacity>
-//             </View>
-//           </View>
-
-//           {/* Tags */}
-//           <View style={styles.tagsContainer}>
-//             {post.tags.map((tag, index) => (
-//               <View key={index} style={styles.tag}>
-//                 <Text style={styles.tagText}>{tag}</Text>
-//               </View>
-//             ))}
-//           </View>
-
-//           {/* Bottom Info */}
-//           <View style={styles.cardFooter}>
-//             <View style={styles.statsContainer}>
-//               <View style={styles.stat}>
-//                 <Ionicons name="heart" size={14} color="#FF6B6B" />
-//                 <Text style={styles.statText}>{post.likes}</Text>
-//               </View>
-//               <View style={styles.stat}>
-//                 <Ionicons name="eye" size={14} color="white" />
-//                 <Text style={styles.statText}>{post.views}</Text>
-//               </View>
-//             </View>
-//             <View style={styles.priceContainer}>
-//               <Text style={styles.priceText}>{post.price}</Text>
-//             </View>
-//           </View>
-
-//           {/* Action Buttons */}
-//           <View style={styles.actionButtons}>
-//             <TouchableOpacity style={styles.actionButton}>
-//               <Ionicons
-//                 name={post.isLiked ? "heart" : "heart-outline"}
-//                 size={18}
-//                 color={post.isLiked ? "#FF6B6B" : "white"}
-//               />
-//             </TouchableOpacity>
-//             <TouchableOpacity style={styles.actionButton}>
-//               <Ionicons name="share-outline" size={18} color="white" />
-//             </TouchableOpacity>
-//             <TouchableOpacity style={styles.actionButton}>
-//               <Ionicons name="bookmark-outline" size={18} color="white" />
-//             </TouchableOpacity>
-//           </View>
-//         </LinearGradient>
-//       </TouchableOpacity>
-//     </Animated.View>
-//   )
-
-//   const renderBottomNav = () => (
-//     <BlurView intensity={95} style={styles.bottomNav}>
-//       <View style={styles.navContent}>
-//         {navItems.map((item) => {
-//           const isActive = activeTab === item.key
-//           return (
-//             <TouchableOpacity
-//               key={item.key}
-//               style={styles.navItem}
-//               onPress={() => setActiveTab(item.key)}
-//             >
-//               {isActive && (
-//                 <LinearGradient
-//                   colors={[item.color + "40", item.color + "20"]}
-//                   style={styles.activeNavBackground}
-//                 />
-//               )}
-//               <Ionicons
-//                 name={isActive ? item.activeIcon : item.icon}
-//                 size={22}
-//                 color={isActive ? item.color : "#64748b"}
-//               />
-//               <Text
-//                 style={[styles.navLabel, isActive && { color: item.color }]}
-//               >
-//                 {item.label}
-//               </Text>
-//             </TouchableOpacity>
-//           )
-//         })}
-//       </View>
-//     </BlurView>
-//   )
-
-//   return (
-//     <View style={styles.container}>
-//       <StatusBar barStyle="light-content" backgroundColor="#667eea" />
 
 //       {renderHeader()}
 //       {renderCategories()}
@@ -2438,12 +2119,14 @@
 
 // fouth design
 
+import FeedService from "@/api/feedService"
 import { Ionicons } from "@expo/vector-icons"
 import MaskedView from "@react-native-masked-view/masked-view"
 import { BlurView } from "expo-blur"
 import { LinearGradient } from "expo-linear-gradient"
 import React, { useEffect, useRef, useState } from "react"
 import {
+  ActivityIndicator,
   Animated,
   Dimensions,
   Image,
@@ -2457,7 +2140,6 @@ import {
   TouchableOpacity,
   View,
 } from "react-native"
-
 const { width, height } = Dimensions.get("window")
 const VIDEO_HEIGHT = height * 0.62
 
@@ -2466,7 +2148,9 @@ export default function PremiumVibeZoneApp() {
   const [activeTab, setActiveTab] = useState("Home")
   const [cartCount, setCartCount] = useState(3)
   const [isScrolling, setIsScrolling] = useState(false)
-
+  const [products, setProducts] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null) // Explicitly type error state
   // Premium animations
   const liquidAnim = useRef(new Animated.Value(0)).current
   const floatingAnim = useRef(new Animated.Value(0)).current
@@ -2526,6 +2210,27 @@ export default function PremiumVibeZoneApp() {
     ).start()
   }, [])
 
+  useEffect(() => {
+    const fetchFashionFeed = async () => {
+      setLoading(true) // Start loading
+      setError(null) // Clear previous errors
+      try {
+        const response = await FeedService.getPersonalizedFeed({})
+
+        // Assuming the API response structure is { success: boolean, data: [] }
+        // And 'data' here is an array of video objects, consistent with your dummy 'videos' array.
+        setProducts(response.data.products || [])
+        setLoading(false)
+      } catch (err: any) {
+        console.error("Failed to fetch personalized feed:", err)
+        setError(err.message || "Failed to load personalized feed.") // Set error message
+      } finally {
+        setLoading(false) // End loading
+      }
+    }
+
+    fetchFashionFeed()
+  }, [])
   const trendingCategories = [
     {
       id: "foryou",
@@ -2619,6 +2324,7 @@ export default function PremiumVibeZoneApp() {
     },
   ]
 
+  console.log("data", products) // Keep this for debugging if needed, but remove for production
   const navItems = [
     {
       icon: "home",
@@ -2954,7 +2660,8 @@ export default function PremiumVibeZoneApp() {
     )
   }
 
-  const renderPremiumVideoCard = (video, index) => (
+  const renderPremiumVideoCard = (video: any, index: number) => (
+    // GET /feed/personalized?category=fashion
     <View key={video.id} style={styles.premiumVideoContainer}>
       {/* Video Player with Glass Morphism */}
       <View style={styles.premiumVideoPlayer}>
@@ -3041,7 +2748,7 @@ export default function PremiumVibeZoneApp() {
                   colors={action.gradient}
                   style={styles.actionButtonGradient}
                 >
-                  <Ionicons name={action.icon} size={20} color="white" />
+                  <Ionicons name={action.icon as any} size={20} color="white" />
 
                   {/* Action Glow */}
                   <View
@@ -3298,7 +3005,9 @@ export default function PremiumVibeZoneApp() {
                     )}
 
                     <Ionicons
-                      name={isActive ? item.icon : item.icon + "-outline"}
+                      name={
+                        isActive ? item.icon : ((item.icon + "-outline") as any)
+                      }
                       size={24}
                       color={
                         isActive ? item.gradient[0] : "rgba(255,255,255,0.6)"
@@ -3349,7 +3058,16 @@ export default function PremiumVibeZoneApp() {
         onScrollBeginDrag={() => setIsScrolling(true)}
         onScrollEndDrag={() => setIsScrolling(false)}
       >
-        {videos.map(renderPremiumVideoCard)}
+        {loading && (
+          <ActivityIndicator
+            style={styles.loadingIndicator}
+            size="large"
+            color="#00DFA2"
+          />
+        )}
+        {error && <Text style={styles.errorText}>{error}</Text>}
+
+        {products && products?.map(renderPremiumVideoCard)}
       </ScrollView>
 
       {renderPremiumBottomNav()}
@@ -3362,6 +3080,23 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: "#000",
+  },
+  loadingIndicator: {
+    marginTop: 50,
+  },
+  errorText: {
+    color: "#FF6B6B", // A red color for errors
+    textAlign: "center",
+    marginTop: 50,
+    fontSize: 16,
+    paddingHorizontal: 20,
+  },
+  emptyFeedText: {
+    color: "rgba(255,255,255,0.7)",
+    textAlign: "center",
+    marginTop: 50,
+    fontSize: 16,
+    paddingHorizontal: 20,
   },
 
   // Liquid Header Styles
@@ -3657,7 +3392,7 @@ const styles = StyleSheet.create({
   premiumVideoContainer: {
     marginBottom: 30,
     paddingHorizontal: 16,
-  },
+  }, // Added missing closing brace
   premiumVideoPlayer: {
     height: VIDEO_HEIGHT,
     borderRadius: 25,
@@ -5600,7 +5335,7 @@ const styles = StyleSheet.create({
 //                     {product.originalPrice && (
 //                       <Text style={styles.originalPrice}>
 //                         {product.originalPrice}
-//                       </Text>
+//                       </Text>j
 //                     )}
 //                   </View>
 

@@ -3,7 +3,7 @@ import { router } from "expo-router"
 import * as SecureStore from "expo-secure-store"
 
 // Base URL for API
-const BASE_URL = "http://192.168.1.61:3000/api/v1"
+const BASE_URL = "http://localhost:3000/api/v1"
 // Note: Using network IP for device/simulator access
 
 // Main axios instance
