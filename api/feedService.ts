@@ -29,15 +29,41 @@ const FeedService = {
       if (params.maxDistance)
         queryString.append("maxDistance", params.maxDistance.toString())
 
-      // Use the query string for personalized feed
-      const url = `/feed/personalized${
-        queryString.toString() ? `?${queryString.toString()}` : ""
-      }`
-      // const url = `/feed/personalized` // Original line, now commented out
+      // Try different possible endpoints
+      const possibleUrls = [
+        `/feed/personalized${
+          queryString.toString() ? `?${queryString.toString()}` : ""
+        }`,
+        `/products${
+          queryString.toString() ? `?${queryString.toString()}` : ""
+        }`,
+        `/feed/products${
+          queryString.toString() ? `?${queryString.toString()}` : ""
+        }`,
+        `/api/products${
+          queryString.toString() ? `?${queryString.toString()}` : ""
+        }`,
+      ]
 
-      const response = await api.get(url)
-      return response.data
+      let lastError = null
+
+      for (const url of possibleUrls) {
+        try {
+          console.log(`🔍 Trying endpoint: ${url}`)
+          const response = await api.get(url)
+          console.log(`✅ Success with endpoint: ${url}`)
+          return response.data
+        } catch (error: any) {
+          console.log(`❌ Failed endpoint: ${url}`, error.response?.status)
+          lastError = error
+          continue
+        }
+      }
+
+      // If all endpoints failed, throw the last error
+      throw lastError
     } catch (error: any) {
+      console.error("All feed endpoints failed:", error)
       throw (
         error.response?.data || {
           success: false,
